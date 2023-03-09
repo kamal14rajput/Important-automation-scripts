@@ -1,0 +1,27 @@
+# If error encounter then use this -> Update-AzConfig -DisplayBreakingChangeWarning $false
+$DatabaseName = "IC247-Mobile-Multilingual"
+$ResourceGroupName = "IConnect-Dev-QA-UAT"
+$ServerName = "backenddb-dev-qa-uat"
+$ServerAdmin = "backend"
+$ServerPassword = "P@ssw0rd#123"
+$SecurePassword = ConvertTo-SecureString -String $ServerPassword -AsPlainText -Force
+$creds = New-object -TypeName System.Management.Automation.PSCredential -ArgumentList $ServerAdmin, $SecurePassword
+$ElasticPoolName = "backend-ElasticPool"
+New-AzSqlDatabaseCopy -ResourceGroupName $ResourceGroupName -ServerName $ServerName -DatabaseName "IC247-Mobile-Multilingual" -CopyResourceGroupName $ResourceGroupName -CopyServerName $ServerName -CopyDatabaseName "IC247-Mobile-Multilingual-copy" -ElasticPoolName $ElasticPoolName
+$bacpacFilename = "IC247-Mobile-Multilingual-copy" + ".zip"
+$BaseStorageUri = "https://prathap.blob.core.windows.net/prathap/"
+$BacpacUri = $BaseStorageUri + $bacpacFilename
+$StorageKeytype = "StorageAccessKey"
+$StorageKey = "o+6J7uY2GsC75lJEXXnVvLgJSz/vXZCJLMKUf8QHhfCXKms0dRoeMn8eLaLMNzcQsdL287IVjkQw+AStgm/rZw=="
+$exportRequest = New-AzSqlDatabaseExport -ResourceGroupName $ResourceGroupName -ServerName $ServerName -DatabaseName "IC247-Mobile-Multilingual-copy" -StorageKeytype $StorageKeytype -StorageKey $StorageKey -StorageUri $BacpacUri -AdministratorLogin $creds.UserName -AdministratorLoginPassword $creds.Password
+$exportStatus = Get-AzSqlDatabaseImportExportStatus -operationStatusLink $exportRequest.operationStatusLink
+while ($exportStatus.Status -eq "InProgress")
+{
+  $exportStatus = Get-AzSqlDatabaseImportExportStatus -operationStatusLink $exportRequest.operationStatusLink
+  start-sleep -s 10
+}
+$exportStatus
+Remove-AzSqlDatabase -ServerName $ServerName -ResourceGroupName $ResourceGroupName -DatabaseName "IC247-Mobile-Multilingual-copy"
+
+
+Youtube Reference -> https://www.youtube.com/watch?v=UFwZ2aKlVug
