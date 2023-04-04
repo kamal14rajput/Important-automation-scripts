@@ -1,0 +1,34 @@
+Download link for azcopy.exe file
+https://aka.ms/downloadazcopy-v10-windows
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+Transfer data to blob from source VM 
+Script :-
+# Paste the folder path where azcopy.exe is present.
+$azcopy_path = "C:\DBScripts"
+
+ 
+
+# Paste the file name to upload.
+$file_path = "C:\Testdoc\UAT\ChatExport.zip"
+
+ 
+
+############################## DO NOT CHANGE ANYTHING BELOW THIS LINE! ##############################
+$Blob_URL = "https://prathap.blob.core.windows.net/prathap?sp=racwdli&st=2023-03-31T11:22:45Z&se=2025-03-31T19:22:45Z&spr=https&sv=2021-12-02&sr=c&sig=oJA7Ds%2FgC8LCRR7NIXPJR4y4lfgwU9LbUhEHeybqOpQ%3D"
+
+ 
+
+."${azcopy_path}\azcopy.exe" cp $file_path $Blob_URL
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Transfer data from blob to destination VM
+Script :-
+$BlobUri = 'https://prathap.blob.core.windows.net/prathap/ChatExport.zip'
+$Sas = '?sp=racwdli&st=2023-03-31T11:22:45Z&se=2025-03-31T19:22:45Z&spr=https&sv=2021-12-02&sr=c&sig=oJA7Ds%2FgC8LCRR7NIXPJR4y4lfgwU9LbUhEHeybqOpQ%3D'
+$OutputPath = 'C:\DBScripts\ChatExport.zip'
+$FullUri = "$BlobUri$Sas"
+(New-Object System.Net.WebClient).DownloadFile($FullUri, $OutputPath)
