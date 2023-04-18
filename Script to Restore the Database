@@ -1,0 +1,5 @@
+# Create a new credential object for the SQL Server login and password
+$credential = New-Object System.Management.Automation.PSCredential ("gatewaydb", (ConvertTo-SecureString "P@ssw0rd#123" -AsPlainText -Force))
+
+# Restore the database using the SQL Server credential
+Restore-SqlDatabase -ServerInstance "VM-John" -Database "IConnectGateway" -BackupFile "C:\Program Files\Microsoft SQL Server\MSSQL14.MSSQLSERVER\MSSQL\Backup\IConnectTestElg.bak" -ReplaceDatabase -Credential $credential
